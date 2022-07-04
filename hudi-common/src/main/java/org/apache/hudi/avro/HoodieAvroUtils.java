@@ -25,6 +25,7 @@ import org.apache.hudi.common.model.HoodieRecord;
 import org.apache.hudi.common.model.HoodieRecord.HoodieMetadataField;
 import org.apache.hudi.common.util.Option;
 import org.apache.hudi.common.util.StringUtils;
+import org.apache.hudi.common.util.ValidationUtils;
 import org.apache.hudi.common.util.collection.Pair;
 import org.apache.hudi.exception.HoodieException;
 import org.apache.hudi.exception.HoodieIOException;
@@ -765,9 +766,7 @@ public class HoodieAvroUtils {
     }
     switch (newSchema.getType()) {
       case RECORD:
-        if (!(oldRecord instanceof IndexedRecord)) {
-          throw new IllegalArgumentException("cannot rewrite record with different type");
-        }
+        ValidationUtils.checkArgument(oldRecord instanceof IndexedRecord, "cannot rewrite record with different type");
         IndexedRecord indexedRecord = (IndexedRecord) oldRecord;
         List<Schema.Field> fields = newSchema.getFields();
         Map<Integer, Object> helper = new HashMap<>();
@@ -806,9 +805,7 @@ public class HoodieAvroUtils {
         }
         return newRecord;
       case ARRAY:
-        if (!(oldRecord instanceof Collection)) {
-          throw new IllegalArgumentException("cannot rewrite record with different type");
-        }
+        ValidationUtils.checkArgument(oldRecord instanceof Collection, "cannot rewrite record with different type");
         Collection array = (Collection)oldRecord;
         List<Object> newArray = new ArrayList();
         fieldNames.push("element");
@@ -818,9 +815,7 @@ public class HoodieAvroUtils {
         fieldNames.pop();
         return newArray;
       case MAP:
-        if (!(oldRecord instanceof Map)) {
-          throw new IllegalArgumentException("cannot rewrite record with different type");
-        }
+        ValidationUtils.checkArgument(oldRecord instanceof Map, "cannot rewrite record with different type");
         Map<Object, Object> map = (Map<Object, Object>) oldRecord;
         Map<Object, Object> newMap = new HashMap<>();
         fieldNames.push("value");
@@ -836,7 +831,7 @@ public class HoodieAvroUtils {
     }
   }
 
-  private static String createFullName(Deque<String> fieldNames) {
+  public static String createFullName(Deque<String> fieldNames) {
     String result = "";
     if (!fieldNames.isEmpty()) {
       List<String> parentNames = new ArrayList<>();
@@ -971,7 +966,7 @@ public class HoodieAvroUtils {
   }
 
   // convert days to Date
-  private static java.sql.Date toJavaDate(int days) {
+  public static java.sql.Date toJavaDate(int days) {
     long localMillis = Math.multiplyExact(days, MILLIS_PER_DAY);
     int timeZoneOffset;
     TimeZone defaultTimeZone = TimeZone.getDefault();
@@ -984,7 +979,7 @@ public class HoodieAvroUtils {
   }
 
   // convert Date to days
-  private static int fromJavaDate(Date date) {
+  public static int fromJavaDate(Date date) {
     long millisUtc = date.getTime();
     long millisLocal = millisUtc + TimeZone.getDefault().getOffset(millisUtc);
     int julianDays = Math.toIntExact(Math.floorDiv(millisLocal, MILLIS_PER_DAY));
