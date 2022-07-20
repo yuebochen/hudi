@@ -127,7 +127,7 @@ public class TestPriorityBasedFileSystemView {
       final LoggingEvent firstLogEntry = logs.get(0);
       assertEquals(firstLogEntry.getLevel(), Level.WARN);
       assertTrue(((String)firstLogEntry.getMessage()).contains("Got error running preferred function. Likely due to another "
-          + "concurrent writer in progress. Trying secondary"));
+          + " concurrent writer in progress. Trying secondary"));
     } finally {
       logger.removeAppender(appender);
     }
