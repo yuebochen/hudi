@@ -42,10 +42,10 @@ public class HiveSyncConfig extends HoodieSyncConfig {
   public String metastoreUris;
 
   @Parameter(names = {"--use-pre-apache-input-format"},
-      description = "Use InputFormat under com.uber.hoodie package "
-          + "instead of org.apache.hudi package. Use this when you are in the process of migrating from "
-          + "com.uber.hoodie to org.apache.hudi. Stop using this after you migrated the table definition to "
-          + "org.apache.hudi input format.")
+          description = "Use InputFormat under com.uber.hoodie package "
+                  + "instead of org.apache.hudi package. Use this when you are in the process of migrating from "
+                  + "com.uber.hoodie to org.apache.hudi. Stop using this after you migrated the table definition to "
+                  + "org.apache.hudi input format.")
   public Boolean usePreApacheInputFormat;
 
   @Parameter(names = {"--bucket-spec"}, description = "bucket spec stored in metastore", required = false)
@@ -77,7 +77,7 @@ public class HiveSyncConfig extends HoodieSyncConfig {
   public Boolean help = false;
 
   @Parameter(names = {"--support-timestamp"}, description = "'INT64' with original type TIMESTAMP_MICROS is converted to hive 'timestamp' type."
-      + "Disabled by default for backward compatibility.")
+          + "Disabled by default for backward compatibility.")
   public Boolean supportTimestamp;
 
   @Parameter(names = {"--managed-table"}, description = "Create a managed table")
@@ -98,124 +98,165 @@ public class HiveSyncConfig extends HoodieSyncConfig {
   @Parameter(names = {"--sync-comment"}, description = "synchronize table comments to hive")
   public boolean syncComment = false;
 
+  @Parameter(names = {"--enable-kerberos"}, description = "Whether hive configs kerberos")
+  public Boolean enableKerberos = false;
+
+  @Parameter(names = {"--krb5-conf"}, description = "krb5.conf file path")
+  public String krb5Conf = "/etc/krb5.conf";
+
+  @Parameter(names = {"--principal"}, description = "hive metastore principal")
+  public String principal = "hive/_HOST@EXAMPLE.COM";
+
+  @Parameter(names = {"--keytab-file"}, description = "hive metastore keytab file path")
+  public String keytabFile;
+
+  @Parameter(names = {"--keytab-name"}, description = "hive metastore keytab name")
+  public String keytabName;
+
   // HIVE SYNC SPECIFIC CONFIGS
   // NOTE: DO NOT USE uppercase for the keys as they are internally lower-cased. Using upper-cases causes
   // unexpected issues with config getting reset
   public static final ConfigProperty<String> HIVE_SYNC_ENABLED = ConfigProperty
-      .key("hoodie.datasource.hive_sync.enable")
-      .defaultValue("false")
-      .withDocumentation("When set to true, register/sync the table to Apache Hive metastore.");
+          .key("hoodie.datasource.hive_sync.enable")
+          .defaultValue("false")
+          .withDocumentation("When set to true, register/sync the table to Apache Hive metastore.");
 
   public static final ConfigProperty<String> HIVE_USER = ConfigProperty
-      .key("hoodie.datasource.hive_sync.username")
-      .defaultValue("hive")
-      .withDocumentation("hive user name to use");
+          .key("hoodie.datasource.hive_sync.username")
+          .defaultValue("hive")
+          .withDocumentation("hive user name to use");
 
   public static final ConfigProperty<String> HIVE_PASS = ConfigProperty
-      .key("hoodie.datasource.hive_sync.password")
-      .defaultValue("hive")
-      .withDocumentation("hive password to use");
+          .key("hoodie.datasource.hive_sync.password")
+          .defaultValue("hive")
+          .withDocumentation("hive password to use");
+
+
+  public static final ConfigProperty<Boolean> ENABLEK_ERBEROS = ConfigProperty
+          .key("hoodie.datasource.hive_sync.kerberos.enable")
+          .defaultValue(false)
+          .withDocumentation("enablek_erberos to use");
+
+  public static final ConfigProperty<String> KRB5_CONF = ConfigProperty
+          .key("hoodie.datasource.hive_sync.kerberos.krb5.conf")
+          .defaultValue("/etc/krb5.conf")
+          .withDocumentation("krb5conf to use");
+
+  public static final ConfigProperty<String> PRINCIPAL = ConfigProperty
+          .key("hoodie.datasource.hive_sync.kerberos.principal")
+          .defaultValue("")
+          .withDocumentation("principal to use");
+
+  public static final ConfigProperty<String> KEYTAB_FILE = ConfigProperty
+          .key("hoodie.datasource.hive_sync.kerberos.keytab.file")
+          .defaultValue("")
+          .withDocumentation("keytabfile to use");
+
+  public static final ConfigProperty<String> KEYTAB_NAME = ConfigProperty
+          .key("hoodie.datasource.hive_sync.kerberos.keytab.name")
+          .defaultValue("")
+          .withDocumentation("keytabname to use");
 
   public static final ConfigProperty<String> HIVE_URL = ConfigProperty
-      .key("hoodie.datasource.hive_sync.jdbcurl")
-      .defaultValue("jdbc:hive2://localhost:10000")
-      .withDocumentation("Hive metastore url");
+          .key("hoodie.datasource.hive_sync.jdbcurl")
+          .defaultValue("jdbc:hive2://localhost:10000")
+          .withDocumentation("Hive metastore url");
 
   public static final ConfigProperty<String> HIVE_USE_PRE_APACHE_INPUT_FORMAT = ConfigProperty
-      .key("hoodie.datasource.hive_sync.use_pre_apache_input_format")
-      .defaultValue("false")
-      .withDocumentation("Flag to choose InputFormat under com.uber.hoodie package instead of org.apache.hudi package. "
-          + "Use this when you are in the process of migrating from "
-          + "com.uber.hoodie to org.apache.hudi. Stop using this after you migrated the table definition to org.apache.hudi input format");
+          .key("hoodie.datasource.hive_sync.use_pre_apache_input_format")
+          .defaultValue("false")
+          .withDocumentation("Flag to choose InputFormat under com.uber.hoodie package instead of org.apache.hudi package. "
+                  + "Use this when you are in the process of migrating from "
+                  + "com.uber.hoodie to org.apache.hudi. Stop using this after you migrated the table definition to org.apache.hudi input format");
 
   /**
    * @deprecated Use {@link #HIVE_SYNC_MODE} instead of this config from 0.9.0
    */
   @Deprecated
   public static final ConfigProperty<String> HIVE_USE_JDBC = ConfigProperty
-      .key("hoodie.datasource.hive_sync.use_jdbc")
-      .defaultValue("true")
-      .deprecatedAfter("0.9.0")
-      .withDocumentation("Use JDBC when hive synchronization is enabled");
+          .key("hoodie.datasource.hive_sync.use_jdbc")
+          .defaultValue("true")
+          .deprecatedAfter("0.9.0")
+          .withDocumentation("Use JDBC when hive synchronization is enabled");
 
   public static final ConfigProperty<String> METASTORE_URIS = ConfigProperty
-      .key("hoodie.datasource.hive_sync.metastore.uris")
-      .defaultValue("thrift://localhost:9083")
-      .withDocumentation("Hive metastore url");
+          .key("hoodie.datasource.hive_sync.metastore.uris")
+          .defaultValue("thrift://localhost:9083")
+          .withDocumentation("Hive metastore url");
 
   public static final ConfigProperty<String> HIVE_AUTO_CREATE_DATABASE = ConfigProperty
-      .key("hoodie.datasource.hive_sync.auto_create_database")
-      .defaultValue("true")
-      .withDocumentation("Auto create hive database if does not exists");
+          .key("hoodie.datasource.hive_sync.auto_create_database")
+          .defaultValue("true")
+          .withDocumentation("Auto create hive database if does not exists");
 
   public static final ConfigProperty<String> HIVE_IGNORE_EXCEPTIONS = ConfigProperty
-      .key("hoodie.datasource.hive_sync.ignore_exceptions")
-      .defaultValue("false")
-      .withDocumentation("Ignore exceptions when syncing with Hive.");
+          .key("hoodie.datasource.hive_sync.ignore_exceptions")
+          .defaultValue("false")
+          .withDocumentation("Ignore exceptions when syncing with Hive.");
 
   public static final ConfigProperty<String> HIVE_SKIP_RO_SUFFIX_FOR_READ_OPTIMIZED_TABLE = ConfigProperty
-      .key("hoodie.datasource.hive_sync.skip_ro_suffix")
-      .defaultValue("false")
-      .withDocumentation("Skip the _ro suffix for Read optimized table, when registering");
+          .key("hoodie.datasource.hive_sync.skip_ro_suffix")
+          .defaultValue("false")
+          .withDocumentation("Skip the _ro suffix for Read optimized table, when registering");
 
   public static final ConfigProperty<String> HIVE_SUPPORT_TIMESTAMP_TYPE = ConfigProperty
-      .key("hoodie.datasource.hive_sync.support_timestamp")
-      .defaultValue("false")
-      .withDocumentation("‘INT64’ with original type TIMESTAMP_MICROS is converted to hive ‘timestamp’ type. "
-          + "Disabled by default for backward compatibility.");
+          .key("hoodie.datasource.hive_sync.support_timestamp")
+          .defaultValue("false")
+          .withDocumentation("‘INT64’ with original type TIMESTAMP_MICROS is converted to hive ‘timestamp’ type. "
+                  + "Disabled by default for backward compatibility.");
 
   public static final ConfigProperty<String> HIVE_TABLE_PROPERTIES = ConfigProperty
-      .key("hoodie.datasource.hive_sync.table_properties")
-      .noDefaultValue()
-      .withDocumentation("Additional properties to store with table.");
+          .key("hoodie.datasource.hive_sync.table_properties")
+          .noDefaultValue()
+          .withDocumentation("Additional properties to store with table.");
 
   public static final ConfigProperty<String> HIVE_TABLE_SERDE_PROPERTIES = ConfigProperty
-      .key("hoodie.datasource.hive_sync.serde_properties")
-      .noDefaultValue()
-      .withDocumentation("Serde properties to hive table.");
+          .key("hoodie.datasource.hive_sync.serde_properties")
+          .noDefaultValue()
+          .withDocumentation("Serde properties to hive table.");
 
   public static final ConfigProperty<String> HIVE_SYNC_AS_DATA_SOURCE_TABLE = ConfigProperty
-      .key("hoodie.datasource.hive_sync.sync_as_datasource")
-      .defaultValue("true")
-      .withDocumentation("");
+          .key("hoodie.datasource.hive_sync.sync_as_datasource")
+          .defaultValue("true")
+          .withDocumentation("");
 
   public static final ConfigProperty<Integer> HIVE_SYNC_SCHEMA_STRING_LENGTH_THRESHOLD = ConfigProperty
-      .key("hoodie.datasource.hive_sync.schema_string_length_thresh")
-      .defaultValue(4000)
-      .withDocumentation("");
+          .key("hoodie.datasource.hive_sync.schema_string_length_thresh")
+          .defaultValue(4000)
+          .withDocumentation("");
 
   // Create table as managed table
   public static final ConfigProperty<Boolean> HIVE_CREATE_MANAGED_TABLE = ConfigProperty
-      .key("hoodie.datasource.hive_sync.create_managed_table")
-      .defaultValue(false)
-      .withDocumentation("Whether to sync the table as managed table.");
+          .key("hoodie.datasource.hive_sync.create_managed_table")
+          .defaultValue(false)
+          .withDocumentation("Whether to sync the table as managed table.");
 
   public static final ConfigProperty<Integer> HIVE_BATCH_SYNC_PARTITION_NUM = ConfigProperty
-      .key("hoodie.datasource.hive_sync.batch_num")
-      .defaultValue(1000)
-      .withDocumentation("The number of partitions one batch when synchronous partitions to hive.");
+          .key("hoodie.datasource.hive_sync.batch_num")
+          .defaultValue(1000)
+          .withDocumentation("The number of partitions one batch when synchronous partitions to hive.");
 
   public static final ConfigProperty<String> HIVE_SYNC_MODE = ConfigProperty
-      .key("hoodie.datasource.hive_sync.mode")
-      .noDefaultValue()
-      .withDocumentation("Mode to choose for Hive ops. Valid values are hms, jdbc and hiveql.");
+          .key("hoodie.datasource.hive_sync.mode")
+          .noDefaultValue()
+          .withDocumentation("Mode to choose for Hive ops. Valid values are hms, jdbc and hiveql.");
 
   public static final ConfigProperty<Boolean> HIVE_SYNC_BUCKET_SYNC = ConfigProperty
-      .key("hoodie.datasource.hive_sync.bucket_sync")
-      .defaultValue(false)
-      .withDocumentation("Whether sync hive metastore bucket specification when using bucket index."
-          + "The specification is 'CLUSTERED BY (trace_id) SORTED BY (trace_id ASC) INTO 65536 BUCKETS'");
+          .key("hoodie.datasource.hive_sync.bucket_sync")
+          .defaultValue(false)
+          .withDocumentation("Whether sync hive metastore bucket specification when using bucket index."
+                  + "The specification is 'CLUSTERED BY (trace_id) SORTED BY (trace_id ASC) INTO 65536 BUCKETS'");
 
   public static final ConfigProperty<String> HIVE_SYNC_BUCKET_SYNC_SPEC = ConfigProperty
-      .key("hoodie.datasource.hive_sync.bucket_sync_spec")
-      .defaultValue("")
-      .withDocumentation("The hive metastore bucket specification when using bucket index."
-          + "The specification is 'CLUSTERED BY (trace_id) SORTED BY (trace_id ASC) INTO 65536 BUCKETS'");
+          .key("hoodie.datasource.hive_sync.bucket_sync_spec")
+          .defaultValue("")
+          .withDocumentation("The hive metastore bucket specification when using bucket index."
+                  + "The specification is 'CLUSTERED BY (trace_id) SORTED BY (trace_id ASC) INTO 65536 BUCKETS'");
 
   public static final ConfigProperty<String> HIVE_SYNC_COMMENT = ConfigProperty
-      .key("hoodie.datasource.hive_sync.sync_comment")
-      .defaultValue("false")
-      .withDocumentation("Whether to sync the table column comments while syncing the table.");
+          .key("hoodie.datasource.hive_sync.sync_comment")
+          .defaultValue("false")
+          .withDocumentation("Whether to sync the table column comments while syncing the table.");
 
   public HiveSyncConfig() {
     this(new TypedProperties());
@@ -242,45 +283,56 @@ public class HiveSyncConfig extends HoodieSyncConfig {
     this.createManagedTable = getBooleanOrDefault(HIVE_CREATE_MANAGED_TABLE);
     this.bucketSpec = getStringOrDefault(HIVE_SYNC_BUCKET_SYNC_SPEC);
     this.syncComment = getBooleanOrDefault(HIVE_SYNC_COMMENT);
+    this.enableKerberos = getBooleanOrDefault(ENABLEK_ERBEROS);
+    this.krb5Conf = getStringOrDefault(KRB5_CONF);
+    this.principal = getStringOrDefault(PRINCIPAL);
+    this.keytabFile = getStringOrDefault(KEYTAB_FILE);
+    this.keytabName = getStringOrDefault(KEYTAB_NAME);
   }
 
   @Override
   public String toString() {
     return "HiveSyncConfig{"
-      + "databaseName='" + databaseName + '\''
-      + ", tableName='" + tableName + '\''
-      + ", bucketSpec='" + bucketSpec + '\''
-      + ", baseFileFormat='" + baseFileFormat + '\''
-      + ", hiveUser='" + hiveUser + '\''
-      + ", hivePass='" + hivePass + '\''
-      + ", jdbcUrl='" + jdbcUrl + '\''
-      + ", metastoreUris='" + metastoreUris + '\''
-      + ", basePath='" + basePath + '\''
-      + ", partitionFields=" + partitionFields
-      + ", partitionValueExtractorClass='" + partitionValueExtractorClass + '\''
-      + ", assumeDatePartitioning=" + assumeDatePartitioning
-      + ", usePreApacheInputFormat=" + usePreApacheInputFormat
-      + ", useJdbc=" + useJdbc
-      + ", autoCreateDatabase=" + autoCreateDatabase
-      + ", ignoreExceptions=" + ignoreExceptions
-      + ", skipROSuffix=" + skipROSuffix
-      + ", useFileListingFromMetadata=" + useFileListingFromMetadata
-      + ", tableProperties='" + tableProperties + '\''
-      + ", serdeProperties='" + serdeProperties + '\''
-      + ", help=" + help
-      + ", supportTimestamp=" + supportTimestamp
-      + ", decodePartition=" + decodePartition
-      + ", createManagedTable=" + createManagedTable
-      + ", syncAsSparkDataSourceTable=" + syncAsSparkDataSourceTable
-      + ", sparkSchemaLengthThreshold=" + sparkSchemaLengthThreshold
-      + ", withOperationField=" + withOperationField
-      + ", isConditionalSync=" + isConditionalSync
-      + ", sparkVersion=" + sparkVersion
-      + ", syncComment=" + syncComment
-      + '}';
+            + "databaseName='" + databaseName + '\''
+            + ", tableName='" + tableName + '\''
+            + ", bucketSpec='" + bucketSpec + '\''
+            + ", baseFileFormat='" + baseFileFormat + '\''
+            + ", hiveUser='" + hiveUser + '\''
+            + ", hivePass='" + hivePass + '\''
+            + ", jdbcUrl='" + jdbcUrl + '\''
+            + ", metastoreUris='" + metastoreUris + '\''
+            + ", basePath='" + basePath + '\''
+            + ", partitionFields=" + partitionFields
+            + ", partitionValueExtractorClass='" + partitionValueExtractorClass + '\''
+            + ", assumeDatePartitioning=" + assumeDatePartitioning
+            + ", usePreApacheInputFormat=" + usePreApacheInputFormat
+            + ", useJdbc=" + useJdbc
+            + ", autoCreateDatabase=" + autoCreateDatabase
+            + ", ignoreExceptions=" + ignoreExceptions
+            + ", skipROSuffix=" + skipROSuffix
+            + ", useFileListingFromMetadata=" + useFileListingFromMetadata
+            + ", tableProperties='" + tableProperties + '\''
+            + ", serdeProperties='" + serdeProperties + '\''
+            + ", help=" + help
+            + ", supportTimestamp=" + supportTimestamp
+            + ", decodePartition=" + decodePartition
+            + ", createManagedTable=" + createManagedTable
+            + ", syncAsSparkDataSourceTable=" + syncAsSparkDataSourceTable
+            + ", sparkSchemaLengthThreshold=" + sparkSchemaLengthThreshold
+            + ", withOperationField=" + withOperationField
+            + ", isConditionalSync=" + isConditionalSync
+            + ", sparkVersion=" + sparkVersion
+            + ", syncComment=" + syncComment
+            + ", enableKerberos=" + enableKerberos
+            + ", krb5Conf=" + krb5Conf
+            + ", principal=" + principal
+            + ", keytabFile=" + keytabFile
+            + ", keytabName=" + keytabName
+            + '}';
   }
 
   public static String getBucketSpec(String bucketCols, int bucketNum) {
     return "CLUSTERED BY (" + bucketCols + " INTO " + bucketNum + " BUCKETS";
   }
 }
+

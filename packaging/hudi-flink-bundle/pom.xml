@@ -36,7 +36,7 @@
     <javax.servlet.version>3.1.0</javax.servlet.version>
     <!-- override to be same with flink 1.15.x -->
     <parquet.version>${flink.format.parquet.version}</parquet.version>
-    <hive.version>2.3.1</hive.version>
+    <hive.version>2.1.1-cdh6.3.2</hive.version>
     <thrift.version>0.9.3</thrift.version>
   </properties>
 
@@ -139,7 +139,7 @@
                   <include>org.apache.hive:hive-common</include>
                   <include>org.apache.hive:hive-service</include>
                   <include>org.apache.hive:hive-service-rpc</include>
-		  <include>org.apache.hive:hive-exec</include>
+                  <include>org.apache.hive:hive-exec</include>
                   <include>org.apache.hive:hive-standalone-metastore</include>
                   <include>org.apache.hive:hive-metastore</include>
                   <include>org.apache.hive:hive-jdbc</include>
@@ -290,6 +290,10 @@
                   <shadedPattern>org.apache.hudi.org.apache.hadoop.metrics2.util.MetricSampleQuantiles
                   </shadedPattern>
                 </relocation>
+                <relocation>
+                  <pattern>org.apache.parquet</pattern>
+                  <shadedPattern>${flink.bundle.shade.prefix}org.apache.parquet</shadedPattern>
+                </relocation>
               </relocations>
               <filters>
                 <filter>
@@ -330,8 +334,8 @@
         <exclusion>
           <artifactId>guava</artifactId>
           <groupId>com.google.guava</groupId>
-       </exclusion>
-       <exclusion>
+        </exclusion>
+        <exclusion>
           <artifactId>rocksdbjni</artifactId>
           <groupId>org.rocksdb</groupId>
         </exclusion>
@@ -716,3 +720,4 @@
     </profile>
   </profiles>
 </project>
+
